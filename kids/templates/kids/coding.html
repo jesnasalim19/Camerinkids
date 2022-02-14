@@ -1,0 +1,25 @@
+{% extends 'kids/base.html' %} 
+{% load static %} 
+{% block content %}
+<h1 class ="text-center">Coding Languges</h1>
+<table class="table table-striped table-bordered table-hover table-dark">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Coding Languages</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for lan in lang %}
+        <tr>
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{lan.lang}}</td>
+            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content %}

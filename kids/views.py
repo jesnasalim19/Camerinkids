@@ -10,6 +10,7 @@ from youtubesearchpython import VideosSearch
 import requests
 import wikipedia
 from django.contrib.auth.decorators import login_required
+import time
 
 # Home section
 def home(request):
@@ -97,7 +98,10 @@ def youtube(request):
         text = request.POST['text']
         video = VideosSearch(text,limit=10)
         result_list = []
+        lm=1
+        
         for i in video.result()['result']:
+            
             result_dict = {
                 'input' : text,
                 'title' : i['title'],
@@ -113,12 +117,16 @@ def youtube(request):
                 for j in i['descriptionSnippet']:
                     desc += j['text']
                     result_dict['description'] = desc
-                    result_list.append(result_dict)
-                    context = {
+                result_list.append(result_dict) 
+                lm+=1
+                if lm==10:
+                 break        
+        context = {
                         'form':form,
                         'results':result_list
                     }
-                    return render(request,'kids/youtube.html',context)
+                   
+        return render(request,'kids/youtube.html',context)
     else:                
       form = DashboardForm()
       context = {'forms':form}
@@ -176,7 +184,9 @@ def delete_todo(request,pk=None):
     return redirect("todo")
 
 # Books Section
+
 def books(request):
+    
     if request.method == "POST":
         form = DashboardForm(request.POST)
         text = request.POST['text']
@@ -186,27 +196,28 @@ def books(request):
         result_list = []
         for i in range(10):
             result_dict = {
-                'input' : text,
-                'title' : answer['items'][i]['volumeInfo']['title'],
-                'subtitle' : answer['items'][i]['volumeInfo'].get('subtitle'),
-                'description' : answer['items'][i]['volumeInfo'].get('description'),
-                'count' : answer['items'][i]['volumeInfo'].get('pageCount'),
-                'categories' : answer['items'][i]['volumeInfo'].get('categories'),
-                'rating' : answer['items'][i]['volumeInfo'].get('pageRating'),
-                'thumbnail' : answer['items'][i]['volumeInfo'].get('imageLinks').get('thumbnail'),
-                'preview' : answer['items'][i]['volumeInfo'].get('previewLink'),
+                'input':text,
+                'title':answer['items'][i]['volumeInfo']['title'],
+                'subtitle':answer['items'][i]['volumeInfo'].get('subtitle'),
+                'description':answer['items'][i]['volumeInfo'].get('description'),
+                'count':answer['items'][i]['volumeInfo'].get('pageCount'),
+                'categories':answer['items'][i]['volumeInfo'].get('categories'),
+                'rating':answer['items'][i]['volumeInfo'].get('pageRating'),
+                'thumbnail':answer['items'][i]['volumeInfo'].get('imageLinks').get('thumbnail'),
+                'preview':answer['items'][i]['volumeInfo'].get('previewLink'),
             }
-            
+                       
             result_list.append(result_dict)
-            context = {
-                        'forms':form,
-                        'results':result_list
-                    }
-            return render(request,'kids/books.html',context)
+            context={
+                'forms':form,
+                'results':result_list,
+            }
+        
+        return render(request,'kids/books.html',context)    
     else:                
       form = DashboardForm()
-      context = {'forms':form}
-      return render(request,'kids/books.html',context)
+    context = {'forms':form}
+    return render(request,'kids/books.html',context)
 
 # Dictionary Section
 def dictionary(request):
@@ -217,32 +228,29 @@ def dictionary(request):
         r = requests.get(url)
         answer = r.json()
         try:
-            
-                phonetics = answer[0]['phonetics'][0]['text']
-                audio = answer[0]['phonetics'][0]['audio']
-                definition = answer[0]['meanings'][0]['definitions'][0]['definition']
-                example = answer[0]['meanings'][0]['definitions'][0]['example']
-                synonyms = answer[0]['meanings'][0]['definitions'][0]['synonyms']
-            
-            
-                context = {
+            phonetics = answer[0]['phonetics'][0]['text']
+            audio = answer[0]['phonetics'][0]['audio']
+            definition = answer[0]['meanings'][0]['definitions'][0]['definition']
+            example = answer[0]['meanings'][0]['definitions'][0]['example']
+            synonyms = answer[0]['meanings'][0]['definitions'][0]['synonyms']
+            context = {
                         'forms':form,
-                        'input' : text,
+                        'input':text,
                         'phonetics':phonetics,
                         'audio':audio,
                         'definition':definition,
                         'example':example,
                         'synonyms':synonyms,
-                    }
+            }
         except:
-                context = {
+            context = {
                     'forms':form,
                     'input':''
-                }
+            }
         return render(request,'kids/dictionary.html',context)
-    else:                
-      form = DashboardForm()
-      context = {'forms':form}
+    else:
+        form = DashboardForm()
+        context = {'forms':form}
     return render(request,'kids/dictionary.html',context)
 
 # Wikipedia Section
